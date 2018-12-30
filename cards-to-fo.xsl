@@ -62,7 +62,8 @@
 		<xsl:apply-templates select="question"/>
 		<xsl:apply-templates select="answer"/>
     </xsl:template>
-    
+
+<!--     
     <xsl:template  match="question">
 		<fo:block xsl:use-attribute-sets="element-formatting" 
 			page-break-after="always" 
@@ -80,5 +81,44 @@
 			<xsl:value-of select="text()" />
 		</fo:block>
     </xsl:template>
+ -->
+
+<!--
+WRAP EACH LINE IN A BLOCK
+--> 
+    <xsl:template  match="question">
+		<fo:block-container xsl:use-attribute-sets="element-formatting" 
+			page-break-after="always">
+			<xsl:apply-templates/>
+		</fo:block-container>
+    </xsl:template>
+
+   	<xsl:template match="answer">
+		<fo:block-container xsl:use-attribute-sets="element-formatting" 
+			page-break-after="always">
+			<xsl:apply-templates/>
+		</fo:block-container>
+    </xsl:template>
+
+	<xsl:template match="text()">
+		<xsl:for-each select="tokenize(., '\n\r?')">
+		<xsl:variable name="line" select="."/>
+		<fo:block xsl:use-attribute-sets="element-formatting" linefeed-treatment="ignore">
+	      	<xsl:if test=".">
+	      		<xsl:attribute name="white-space-treatment">inherit</xsl:attribute>
+	      	</xsl:if>
+	      	<xsl:if test="not(.)">
+	      		<xsl:attribute name="white-space-treatment">preserve</xsl:attribute>
+				<!-- Add a space to preserve a blank line -->
+	      		<xsl:text> </xsl:text>
+	      	</xsl:if>
+			<xsl:value-of select="."/>
+		</fo:block>
+		<!-- Use a block for space-after, since FOP doesn't support it -->
+		<xsl:if test=".">
+		<fo:block white-space-treatment="preserve" font-size="4pt"><xsl:text> </xsl:text></fo:block>
+		</xsl:if>
+	 	</xsl:for-each>
+	</xsl:template>
 
 </xsl:stylesheet>
